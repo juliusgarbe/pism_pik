@@ -137,8 +137,8 @@ void TemperaturePIK::update_impl(double my_t, double my_dt) {
     &lat_degN = *m_grid->variables().get_2d_scalar("latitude");
 
   if (lat_degN.metadata().has_attribute("missing_at_bootstrap")) {
-    throw RuntimeError("latitude variable was missing at bootstrap;\n"
-                       "TemperatrePIK atmosphere model depends on latitude and would return nonsense!");
+    throw RuntimeError(PISM_ERROR_LOCATION, "latitude variable was missing at bootstrap;\n"
+                       "SeaRISE-Greenland atmosphere model depends on latitude and would return nonsense!");
   }
 
   IceModelVec::AccessList list;
