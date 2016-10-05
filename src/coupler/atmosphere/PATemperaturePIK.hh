@@ -23,9 +23,6 @@
 #include "PAYearlyCycle.hh"
 #include "base/util/Timeseries.hh"
 
-#include "coupler/util/PScalarForcing.hh"
-#include "PAModifier.hh"
-
 namespace pism {
 namespace atmosphere {
 
@@ -36,9 +33,11 @@ public:
   TemperaturePIK(IceGrid::ConstPtr g);
   virtual ~TemperaturePIK();
 
+  virtual void init_impl();
+  virtual void precip_time_series_impl(int i, int j, std::vector<double> &values);
+
 protected:
 
-  virtual void init_impl();
   virtual MaxTimestep max_timestep_impl(double t);
   virtual void update_impl(double my_t, double my_dt);
  

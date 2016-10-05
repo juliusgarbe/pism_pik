@@ -31,7 +31,6 @@
 #include <cassert>
 #include "base/util/PISMConfigInterface.hh"
 #include "base/util/MaxTimestep.hh"
-
 #include "base/util/error_handling.hh"
 
 
@@ -117,6 +116,13 @@ MaxTimestep TemperaturePIK::max_timestep_impl(double t) {
   return MaxTimestep();
 }
 
+void TemperaturePIK::precip_time_series_impl(int i, int j, std::vector<double> &result) {
+
+  for (unsigned int k = 0; k < m_ts_times.size(); k++) {
+    result[k] = m_precipitation(i,j);
+  }
+}
+
 
 //! \brief Updates mean annual and mean July near-surface air temperatures.
 //! Note that the precipitation rate is time-independent and does not need
@@ -137,8 +143,8 @@ void TemperaturePIK::update_impl(double my_t, double my_dt) {
     &lat_degN = *m_grid->variables().get_2d_scalar("latitude");
 
   if (lat_degN.metadata().has_attribute("missing_at_bootstrap")) {
-    throw RuntimeError("latitude variable was missing at bootstrap;\n"
-                       "TemperatrePIK atmosphere model depends on latitude and would return nonsense!");
+    throw RuntimeError(PISM_ERROR_LOCATION, "latitude variable was missing at bootstrap;\n"
+                       "SeaRISE-Greenland atmosphere model depends on latitude and would return nonsense!");
   }
 
   IceModelVec::AccessList list;
