@@ -23,9 +23,6 @@
 #include "PAYearlyCycle.hh"
 #include "base/util/Timeseries.hh"
 
-#include "coupler/util/PScalarForcing.hh"
-#include "PAModifier.hh"
-
 namespace pism {
 namespace atmosphere {
 
