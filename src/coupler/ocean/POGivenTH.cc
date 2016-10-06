@@ -116,6 +116,7 @@ void GivenTH::init_impl() {
   if (m_theta_ocean->get_n_records() == 1 && m_salinity_ocean->get_n_records() == 1) {
     update(m_grid->ctx()->time()->current(), 0); // dt is irrelevant
   }
+
 }
 
 void GivenTH::add_vars_to_output_impl(const std::string &keyword, std::set<std::string> &result) {
@@ -181,12 +182,12 @@ void GivenTH::update_impl(double my_t, double my_dt) {
 
   Constants c(*m_config);
 
-  const IceModelVec2S *ice_thickness = m_grid->variables().get_2d_scalar("land_ice_thickness"),
-                      *bed_topography = m_grid->variables().get_2d_scalar("bedrock_altitude");
+  const IceModelVec2S *ice_thickness = m_grid->variables().get_2d_scalar("land_ice_thickness");
+                      //*bed_topography = m_grid->variables().get_2d_scalar("bedrock_altitude");
 
   IceModelVec::AccessList list;
   list.add(*ice_thickness);
-  list.add(*bed_topography);
+  //list.add(*bed_topography);
   list.add(*m_theta_ocean);
   list.add(*m_salinity_ocean);
   list.add(m_shelfbtemp);
@@ -201,14 +202,14 @@ void GivenTH::update_impl(double my_t, double my_dt) {
       shelf_base_temp_celsius = 0.0,
       shelf_base_massflux     = 0.0;
 
-    double 
-      shelfbaseelev = (c.ice_density / c.sea_water_density) * (*ice_thickness)(i,j),
-      zice = PetscMin(PetscAbs(shelfbaseelev),PetscAbs((*bed_topography)(i,j)));
+    //double 
+    //  shelfbaseelev = (c.ice_density / c.sea_water_density) * (*ice_thickness)(i,j),
+    //  zice = PetscMin(PetscAbs(shelfbaseelev),PetscAbs((*bed_topography)(i,j)));
 
     pointwise_update(c,
                      (*m_salinity_ocean)(i,j),
                      potential_temperature_celsius,
-                     zice,
+                     (*ice_thickness)(i,j),
                      &shelf_base_temp_celsius,
                      &shelf_base_massflux);
 
@@ -219,6 +220,13 @@ void GivenTH::update_impl(double my_t, double my_dt) {
 
   // convert mass flux from [m s-1] to [kg m-2 s-1]:
   m_shelfbmassflux.scale(m_config->get_double("constants.ice.density"));
+
+
+  bool no_shelfb_melt = options::Bool("-no_shelfb_melt","Sets shelfbmassflux to 0.0");
+  if (no_shelfb_melt){
+    m_shelfbmassflux.set(0.0);
+  }
+
 }
 
 
