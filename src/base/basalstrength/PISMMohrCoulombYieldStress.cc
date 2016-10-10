@@ -135,6 +135,7 @@ The default values are vaguely suitable for Antarctica.  See src/pism_config.cdl
     m_target_usurf.set_attrs("internal",
                  "target surface elevation",
                  "m", "target_surface_altitude"); 
+    m_target_usurf.set_time_independent(true);
 
     m_diff_usurf.create(m_grid, "diff_usurf",
               WITH_GHOSTS, stencil_width);
@@ -492,7 +493,7 @@ void MohrCoulombYieldStress::update_impl() {
          phihmax = 700.0, // m
          phimax = 60.0,
          dphi = 1.0,
-         phimod = 0.1; // m/yr
+         phimod = 0.01; // m/yr
 
     tinv = options::Real("-tphi_inverse", "time step for phi inversion",tinv);
     hinv = options::Real("-hphi_inverse", "relative thickness for phi inversion",hinv);
@@ -534,39 +535,46 @@ void MohrCoulombYieldStress::update_impl() {
     for (Points p(*m_grid); p; p.next()) {
       const int i = p.i(), j = p.j();
 
-      double diff_usurf_prev = m_diff_usurf(i,j);
-      m_diff_usurf(i,j) = usurf(i,j)-m_target_usurf(i,j);
+      //double diff_usurf_prev = m_diff_usurf(i,j);
+      //m_diff_usurf(i,j) = usurf(i,j)-m_target_usurf(i,j);
 
       if (inverse_step) {
         if (mask.grounded_ice(i,j)) {
 
+          double diff_usurf_prev = m_diff_usurf(i,j);
+          m_diff_usurf(i,j) = usurf(i,j)-m_target_usurf(i,j);
+          
           // Convergence criterion
           double till_phi_old = m_till_phi(i,j);
           double diff_mask_old = m_diff_mask(i,j);
           double diff_diff = PetscAbs(m_diff_usurf(i,j)-diff_usurf_prev);
-          if (diff_diff/tinv > 0.1)
+
+          if (diff_diff/tinv > phimod) {
             m_diff_mask(i,j)=1.0;
-          else {
+
+            // Do incremental steps of maximum 0.5*dphi down and dphi up reaching the upper limit phimax
+            m_till_phi(i,j) -= PetscMin(dphi,PetscMax(-dphi*0.5,m_diff_usurf(i,j)/hinv));
+            m_till_phi(i,j) = PetscMin(phimax,m_till_phi(i,j));
+
+            // Different lower constraints for marine (b<phihmin) and continental (b>phihmax) areas)
+            if (bed_topography(i,j)>phihmax){
+              m_till_phi(i,j) = PetscMax(phiminup,m_till_phi(i,j));
+
+            // Apply smooth transition between marine and continental areas
+            } else if (bed_topography(i,j)<=phihmax && bed_topography(i,j)>=phihmin){
+              m_till_phi(i, j) = PetscMax((phimin + (bed_topography(i,j) - phihmin) * slope),m_till_phi(i,j));
+
+            } else {
+              m_till_phi(i,j) = PetscMax(phimin,m_till_phi(i,j));
+            }
+          } else {
             m_diff_mask(i,j)=0.0;
           }
 
-          // Do incremental steps of maximum 0.5*dphi down and dphi up reaching the upper limit phimax
-          m_till_phi(i,j) -= PetscMin(dphi,PetscMax(-dphi*0.5,m_diff_usurf(i,j)/hinv));
-          m_till_phi(i,j) = PetscMin(phimax,m_till_phi(i,j));
 
-          // Different lower constraints for marine (b<phihmin) and continental (b>phihmax) areas)
-          if (bed_topography(i,j)>phihmax){
-            m_till_phi(i,j) = PetscMax(phiminup,m_till_phi(i,j));
-
-          // Apply smooth transition between marine and continental areas
-          } else if (bed_topography(i,j)<=phihmax && bed_topography(i,j)>=phihmin){
-            m_till_phi(i, j) = PetscMax((phimin + (bed_topography(i,j) - phihmin) * slope),m_till_phi(i,j));
-
-          } else {
-            m_till_phi(i,j) = PetscMax(phimin,m_till_phi(i,j));
-          }
         // Floating and ice free ocean
         } else if (mask.ocean(i,j)){
+          m_diff_usurf(i,j) = usurf(i,j)-m_target_usurf(i,j);
           m_till_phi(i,j) = phimin;
           m_diff_mask(i,j)=0.0;
         } 
