@@ -263,7 +263,7 @@ void Cavity::init_impl() {
                                   (int)basins_range.min, (int)basins_range.max);
   }
 
-  m_log->message(2, "b min=%f,max=%f\n",cbasins.min(),cbasins.max());
+  m_log->message(5, "b min=%f,max=%f\n",cbasins.min(),cbasins.max());
 
   // read time-independent data right away:
   if (m_theta_ocean->get_n_records() == 1 &&
@@ -351,7 +351,7 @@ void Cavity::initBasinsOptions(const Constants &cc) {
 
   counter_boxes.resize(numberOfBasins, std::vector<double>(2,0)); //does this work?
 
-  m_log->message(4, "counter_boxes(1,0) = %.2f \n", counter_boxes[1][0]);
+  m_log->message(5, "counter_boxes(1,0) = %.2f \n", counter_boxes[1][0]);
 
   mean_salinity_boundary_vector.resize(numberOfBasins);
   mean_temperature_boundary_vector.resize(numberOfBasins);
@@ -398,12 +398,12 @@ void Cavity::initBasinsOptions(const Constants &cc) {
       C_vec[k]           = value_C;
   }
 
-  m_log->message(5, "     Using %d drainage basins and default values: \n"
+  m_log->message(4, "     Using %d drainage basins and default values: \n"
                                 "     gamma_T_star= %.2e, C = %.2e... \n"
                                  , numberOfBasins, gamma_T, value_C);
 
   if (not ocean_means.is_set()) {
-    m_log->message(5, "  calculate Soc and Toc from thetao and salinity... \n");
+    m_log->message(4, "  calculate Soc and Toc from thetao and salinity... \n");
 
     // set continental shelf depth
     continental_shelf_depth = cc.continental_shelf_depth;
@@ -412,7 +412,7 @@ void Cavity::initBasinsOptions(const Constants &cc) {
                                    continental_shelf_depth);
 
     if (cont_shelf_depth.is_set()) {
-      m_log->message(5,
+      m_log->message(4,
       "  Depth of continental shelf for computation of temperature and salinity input\n"
       "  is set for whole domain to continental_shelf_depth=%.0f meter\n",
       continental_shelf_depth);
@@ -450,7 +450,7 @@ void Cavity::update_impl(double my_t, double my_dt) {
   if (exicerises_set) {
     identifyMASK(ICERISESmask,"icerises");}
   extentOfIceShelves();
-  m_log->message(2, "Back here....\n");
+  //m_log->message(2, "Back here....\n");
   identifyBOXMODELmask();
   oceanTemperature(cc);
   m_shelfbtemp.copy_from(Toc);
@@ -687,7 +687,7 @@ void Cavity::computeOCEANMEANS() {
 
       Toc_base_vec[k]=m_Tval[k] - 273.15;
       Soc_base_vec[k]=m_Sval[k];
-      m_log->message(4, "  %d: temp =%.3f, salinity=%.3f\n", k, Toc_base_vec[k], Soc_base_vec[k]);
+      m_log->message(5, "  %d: temp =%.3f, salinity=%.3f\n", k, Toc_base_vec[k], Soc_base_vec[k]);
     }
   }
 
@@ -840,7 +840,7 @@ void Cavity::extentOfIceShelves() {
 
 void Cavity::identifyBOXMODELmask() {
 
-  m_log->message(2, "A1c: in identify boxmodel mask rountine\n");
+  m_log->message(4, "A1c: in identify boxmodel mask rountine\n");
 
   // Find the maximal DistGL and DistIF
   // FIXME! this could already be done in routine where DistGL and DistIF are computed
@@ -894,7 +894,7 @@ void Cavity::identifyBOXMODELmask() {
     // Otherwise, we need to change the calculation of DistGL and DistIF
     lnumberOfBoxes_perBasin[l] = n_min + static_cast<int>(
         round(pow((max_distGL[l]*dx/max_distGL_ref), zeta) *(numberOfBoxes-n_min)));
-    m_log->message(2, "lnumberOfBoxes[%d]=%d \n", l, lnumberOfBoxes_perBasin[l]);
+    m_log->message(5, "lnumberOfBoxes[%d]=%d \n", l, lnumberOfBoxes_perBasin[l]);
   }
 
   // Define the BOXMODELmask
@@ -1218,7 +1218,7 @@ void Cavity::basalMeltRateForGroundingLineBox(const Constants &cc) {
       mean_salinity_boundary_vector[k]=0.0; mean_temperature_boundary_vector[k]=0.0; mean_meltrate_boundary_vector[k]=0.0; mean_overturning_GLbox_vector[k]=0.0;
     }
 
-    m_log->message(2, "  %d: cnt=%.0f, sal=%.3f, temp=%.3f, melt=%.3e, over=%.1e \n", k,counter_edge_of_GLbox_vector,mean_salinity_boundary_vector[k],mean_temperature_boundary_vector[k],mean_meltrate_boundary_vector[k],mean_overturning_GLbox_vector[k]) ;
+    m_log->message(5, "  %d: cnt=%.0f, sal=%.3f, temp=%.3f, melt=%.3e, over=%.1e \n", k,counter_edge_of_GLbox_vector,mean_salinity_boundary_vector[k],mean_temperature_boundary_vector[k],mean_meltrate_boundary_vector[k],mean_overturning_GLbox_vector[k]) ;
   }
 
     countHelpterm = GlobalSum(m_grid->com, lcountHelpterm);
@@ -1254,7 +1254,7 @@ void Cavity::basalMeltRateForIceFrontBox(const Constants &cc) { //FIXME rename r
 
   //! Iterate over all Boxes > 1=GF_Box
   for (int iBox=2; iBox <nBoxes; ++iBox) {
-    m_log->message(2, "B2 : iBox =%d, numberOfBoxes=%d \n", iBox, numberOfBoxes);
+    m_log->message(5, "B2 : iBox =%d, numberOfBoxes=%d \n", iBox, numberOfBoxes);
 
 
     std::vector<double> lcounter_edge_of_ibox_vector(numberOfBasins);     // to compute means at boundary for the current box
@@ -1410,7 +1410,7 @@ void Cavity::basalMeltRateForIceFrontBox(const Constants &cc) { //FIXME rename r
         mean_salinity_boundary_vector[k]=0.0; mean_temperature_boundary_vector[k]=0.0; mean_meltrate_boundary_vector[k]=0.0;
       }
 
-      m_log->message(2, "  %d: cnt=%.0f, sal=%.3f, temp=%.3f, melt=%.3e, over=%.1e \n", k,counter_edge_of_ibox_vector,mean_salinity_boundary_vector[k],mean_temperature_boundary_vector[k],mean_meltrate_boundary_vector[k],mean_overturning_GLbox_vector[k]) ;
+      m_log->message(5, "  %d: cnt=%.0f, sal=%.3f, temp=%.3f, melt=%.3e, over=%.1e \n", k,counter_edge_of_ibox_vector,mean_salinity_boundary_vector[k],mean_temperature_boundary_vector[k],mean_meltrate_boundary_vector[k],mean_overturning_GLbox_vector[k]) ;
     } // basins
 
   } // iBox
