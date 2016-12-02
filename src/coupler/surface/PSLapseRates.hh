@@ -42,8 +42,9 @@ protected:
   virtual void define_variables_impl(const std::set<std::string> &vars,
                                      const PIO &nc, IO_Type nctype);
 protected:
-  double m_smb_lapse_rate;
+  double m_smb_lapse_rate,m_precip_scale_factor;
   SpatialVariableMetadata m_climatic_mass_balance, m_ice_surface_temp;
+  bool do_precip_scale;
 };
 
 } // end of namespace surface
