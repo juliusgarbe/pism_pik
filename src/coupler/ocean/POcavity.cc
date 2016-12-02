@@ -1043,7 +1043,7 @@ void Cavity::oceanTemperature(const Constants &cc) {
       const double T_pmt = cc.a*Soc_base(i,j) + cc.b - cc.c*pressure;
 
       if (  Toc_base(i,j) < T_pmt + 273.15 ) {
-        m_log->message(2, "A2: PISM_WARNING: Toc_base is below the local pressure melting temperature for %d, %d, basin %d, setting it to the T_pmt \n",i,j,shelf_id);
+        m_log->message(4, "A2: PISM_WARNING: Toc_base is below the local pressure melting temperature for %d, %d, basin %d, setting it to the T_pmt \n",i,j,shelf_id);
         Toc_base(i,j) = T_pmt + 273.15;
       } 
 
