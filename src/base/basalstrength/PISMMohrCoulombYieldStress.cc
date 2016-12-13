@@ -239,6 +239,11 @@ void MohrCoulombYieldStress::init_impl() {
       //m_usurf.regrid(iterative_phi_file, OPTIONAL,0.0);
       m_usurf.regrid(iterative_phi_file, CRITICAL);
       m_target_usurf.copy_from(m_usurf);
+
+      //double phimin = 1.0;
+      //phimin = options::Real("-phimin_inverse", "minimum value of phi inversion",phimin);
+      //m_till_phi.set(phimin);
+
   } else {
     m_log->message(2, "* No file set to read target surface elevation from...\n");
   }
@@ -498,8 +503,8 @@ void MohrCoulombYieldStress::update_impl() {
     tinv = options::Real("-tphi_inverse", "time step for phi inversion",tinv);
     hinv = options::Real("-hphi_inverse", "relative thickness for phi inversion",hinv);
     phimax = options::Real("-phimax_inverse", "maximum value of phi inversion",phimax);
-    phimin = options::Real("-phimin_inverse", "minimum value of phi inversion",phimax);
-    phimod = options::Real("-phimod_inverse", "change criterion for phi inversion",phimax);
+    phimin = options::Real("-phimin_inverse", "minimum value of phi inversion",phimin);
+    phimod = options::Real("-phimod_inverse", "change criterion for phi inversion",phimod);
 
     double slope = (phiminup - phimin) / (phihmax - phihmin);
 
@@ -575,7 +580,7 @@ void MohrCoulombYieldStress::update_impl() {
         // Floating and ice free ocean
         } else if (mask.ocean(i,j)){
           m_diff_usurf(i,j) = usurf(i,j)-m_target_usurf(i,j);
-          m_till_phi(i,j) = phimin;
+          //m_till_phi(i,j) = phimin;
           m_diff_mask(i,j)=0.0;
         } 
       }

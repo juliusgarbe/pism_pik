@@ -38,6 +38,8 @@
 #include "base/grounded_cell_fraction.hh"
 #include "base/part_grid_threshold_thickness.hh"
 
+#include "base/util/pism_options.hh"
+
 
 namespace pism {
 
@@ -477,6 +479,9 @@ void IceModel::massContExplicitStep() {
     do_redist                = do_part_grid,
     reduce_frontal_thickness = m_config->get_boolean("geometry.part_grid.reduce_frontal_thickness");
 
+  const bool
+    do_prescribe_gl = options::Bool("-prescribe_gl", "Prescribes grounding line position");
+
   if (do_part_grid) {
     list.add(m_Href);
     if (do_redist) {
@@ -656,6 +661,7 @@ void IceModel::massContExplicitStep() {
         H_new(i, j) += - m_dt * basal_melt_rate;
       }
 
+
       // surface_mass_balance has the units of [m s-1]; convert to [kg m-2]
       m_cumulative_flux_fields.climatic_mass_balance(i, j) += surface_mass_balance * meter_per_s_to_kg_per_m2;
 
@@ -670,9 +676,16 @@ void IceModel::massContExplicitStep() {
         // all these are in units of [kg]
         if (m_cell_type.grounded(i,j)) {
           local.grounded_basal += - basal_melt_rate * meter_per_s_to_kg;
+          //if (do_prescribe_gl && (m_cell_type.next_to_floating_ice(i,j) || m_cell_type.next_to_ice_free_ocean(i,j))) {
+          //  H_new(i, j) = m_ice_thickness(i, j);
+          //}
         } else {
           local.sub_shelf      += - basal_melt_rate * meter_per_s_to_kg;
+          if (do_prescribe_gl) {
+            H_new(i, j) = m_ice_thickness(i, j);
+          }
         }
+
 
         local.surface      += surface_mass_balance * meter_per_s_to_kg;
         local.sum_divQ_SIA += - divQ_SIA           * meter_per_s_to_kg;
