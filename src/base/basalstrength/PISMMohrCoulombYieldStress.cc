@@ -448,6 +448,9 @@ void MohrCoulombYieldStress::update_impl() {
   bool slipperygl       = m_config->get_boolean("basal_yield_stress.slippery_grounding_lines"),
        addtransportable = m_config->get_boolean("basal_yield_stress.add_transportable_water");
 
+  const bool
+    do_prescribe_gl = options::Bool("-prescribe_gl", "Prescribes grounding line position");
+
   const double high_tauc   = m_config->get_double("basal_yield_stress.ice_free_bedrock"),
                tillwat_max = m_config->get_double("hydrology.tillwat_max"),
                c0          = m_config->get_double("basal_yield_stress.mohr_coulomb.till_cohesion"),
@@ -554,6 +557,10 @@ void MohrCoulombYieldStress::update_impl() {
           double diff_mask_old = m_diff_mask(i,j);
           double diff_diff = PetscAbs(m_diff_usurf(i,j)-diff_usurf_prev);
 
+         // if (do_prescribe_gl && (mask.next_to_floating_ice(i,j) || mask.next_to_ice_free_ocean(i,j))){
+          //  m_diff_usurf(i,j)=0.0;
+          //}
+
           if (diff_diff/tinv > phimod) {
             m_diff_mask(i,j)=1.0;
 
@@ -575,7 +582,12 @@ void MohrCoulombYieldStress::update_impl() {
           } else {
             m_diff_mask(i,j)=0.0;
           }
-
+          // Grounded but next to floating or ice free ocean
+          //if (mask.next_to_floating_ice(i,j) || mask.next_to_ice_free_ocean(i,j)){
+            //m_diff_usurf(i,j) = usurf(i,j)-m_target_usurf(i,j);
+            //m_till_phi(i,j) = phimin;
+            //m_diff_mask(i,j)=0.0;
+          //} 
 
         // Floating and ice free ocean
         } else if (mask.ocean(i,j)){

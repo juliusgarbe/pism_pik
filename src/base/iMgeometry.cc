@@ -447,6 +447,10 @@ void IceModel::massContExplicitStep() {
     ice_density              = m_config->get_double("constants.ice.density"),
     meter_per_s_to_kg_per_m2 = m_dt * ice_density;
 
+  const double ocean_density = m_config->get_double("constants.sea_water.density");
+  assert(m_ocean != NULL);
+  const double sea_level = m_ocean->sea_level_elevation();
+
   assert(m_surface != NULL);
   m_surface->ice_surface_mass_flux(m_climatic_mass_balance);
 
@@ -481,6 +485,14 @@ void IceModel::massContExplicitStep() {
 
   const bool
     do_prescribe_gl = options::Bool("-prescribe_gl", "Prescribes grounding line position");
+
+  //if (do_prescribe_gl) {
+  //  const double
+  //    ice_density   = m_config->get_double("constants.ice.density"),
+  //    ocean_density = m_config->get_double("constants.sea_water.density");
+  //  assert(m_ocean != NULL);
+  //  const double sea_level = m_ocean->sea_level_elevation();
+  //}
 
   if (do_part_grid) {
     list.add(m_Href);
@@ -679,10 +691,20 @@ void IceModel::massContExplicitStep() {
           //if (do_prescribe_gl && (m_cell_type.next_to_floating_ice(i,j) || m_cell_type.next_to_ice_free_ocean(i,j))) {
           //  H_new(i, j) = m_ice_thickness(i, j);
           //}
+          if (do_prescribe_gl and m_flux_divergence(i, j)<1000.0/3.14e7) {
+            // prevent from floating
+            H_new(i, j)=std::max(H_new(i, j),1.0-(bed_topography(i,j)-sea_level)*ocean_density/ice_density);
+          }
         } else {
           local.sub_shelf      += - basal_melt_rate * meter_per_s_to_kg;
           if (do_prescribe_gl) {
-            H_new(i, j) = m_ice_thickness(i, j);
+            //H_new(i, j) = m_ice_thickness(i, j);
+            if (m_cell_type.grounded(i-1,j) && m_cell_type.grounded(i+1,j) && m_cell_type.grounded(i,j-1) && m_cell_type.grounded(i,j+1)){
+              //H_new(i, j)=std::max(H_new(i, j),1.0-(bed_topography(i,j)-sea_level)*ocean_density/ice_density);
+              H_new(i, j)=H_new(i, j);
+            } else {
+              H_new(i, j) = m_ice_thickness(i, j);
+            }
           }
         }
 
