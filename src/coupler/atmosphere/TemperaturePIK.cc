@@ -55,8 +55,6 @@ TemperaturePIK::~TemperaturePIK()
 
 void TemperaturePIK::init_impl(const Geometry &geometry) {
 
-  // m_t = m_dt = GSL_NAN;  // every re-init restarts the clock
-
   m_log->message(2,
              "* Initializing PIK atmosphere model with air temperature parameterization based on \n"
              "  Huybrechts & De Wolde (1999) and/or multiple regression analysis of ERA INTERIM data...\n"
@@ -138,14 +136,6 @@ void TemperaturePIK::precip_time_series_impl(int i, int j, std::vector<double> &
 void TemperaturePIK::update_impl(const Geometry &geometry, double t, double dt) {
   (void) t;
   (void) dt;
-
-  // if ((fabs(my_t - m_t) < 1e-12) &&
-  //     (fabs(my_dt - m_dt) < 1e-12)) {
-  //   return;
-  // }
-
-  // m_t  = my_t;
-  // m_dt = my_dt;
 
   // initialize pointers to fields the parameterization depends on:
   const IceModelVec2S
