@@ -205,5 +205,4 @@ inline double gpbld_flow_inlined(double stress, double E, double P) {
   return softness * (stress * stress);
 }
 
-
 #endif /* _GPBLD_APPROXIMATE_H_ */

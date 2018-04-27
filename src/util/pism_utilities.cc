@@ -30,8 +30,8 @@
 #ifndef MPI_INCLUDED
 #define MPI_INCLUDED 1
 #endif
-#include <netcdf.h>             // nc_inq_libvers
 
+#include <netcdf.h>             // nc_inq_libvers
 
 #if (PISM_USE_PROJ4==1)
 #include "pism/util/Proj.hh"    // pj_release

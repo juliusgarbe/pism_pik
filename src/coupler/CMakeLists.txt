@@ -5,6 +5,7 @@ add_library (boundary OBJECT
   ./util/lapse_rates.cc
   ./atmosphere/AtmosphereModel.cc
   ./atmosphere/ConstantPIK.cc
+  ./atmosphere/TemperaturePIK.cc
   ./atmosphere/SeariseGreenland.cc
   ./atmosphere/YearlyCycle.cc
   ./atmosphere/CosineYearlyCycle.cc
