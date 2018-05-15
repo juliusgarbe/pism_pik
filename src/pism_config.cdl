@@ -123,6 +123,17 @@ netcdf pism_config {
     pism_config:atmosphere.precip_exponential_factor_for_temperature_type = "scalar";
     pism_config:atmosphere.precip_exponential_factor_for_temperature_units = "Kelvin-1";
 
+    pism_config:atmosphere.precip_lapse_scaling = "no";
+    pism_config:atmosphere.precip_lapse_scaling_doc = "Enable precipitation scaling according to change in surface elevation";
+    pism_config:atmosphere.precip_lapse_scaling_option = "precip_lapse_scaling";
+    pism_config:atmosphere.precip_lapse_scaling_type = "boolean";
+
+    pism_config:atmosphere.precip_lapse_scale_factor = 0.5;
+    pism_config:atmosphere.precip_lapse_scale_factor_doc = "Scale precipitation according to change in surface elevation";
+    pism_config:atmosphere.precip_lapse_scale_factor_option = "precip_scale_factor";
+    pism_config:atmosphere.precip_lapse_scale_factor_type = "scalar";
+    pism_config:atmosphere.precip_lapse_scale_factor_units = "km-1";
+
     pism_config:atmosphere.lapse_rate.precipitation_lapse_rate = 0.0;
     pism_config:atmosphere.lapse_rate.precipitation_lapse_rate_doc = "Elevation lapse rate for the surface mass balance";
     pism_config:atmosphere.lapse_rate.precipitation_lapse_rate_type = "scalar";
