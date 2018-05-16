@@ -131,7 +131,6 @@ void LapseRates::update_impl(const Geometry &geometry, double t, double dt) {
       lapse_rate_correction(m_surface, *m_reference_surface,
                             m_precip_lapse_rate, *m_precipitation);
     }
-
   }
 
   // temperature
