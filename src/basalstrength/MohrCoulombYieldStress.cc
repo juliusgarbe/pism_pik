@@ -387,10 +387,8 @@ void MohrCoulombYieldStress::tauc_to_phi(const IceModelVec2CellType &mask) {
   assert(m_hydrology != NULL);
 
   const IceModelVec2S
-    &Po      = m_hydrology->overburden_pressure();
-
-  IceModelVec2S
     &tillwat = m_hydrology->till_water_thickness();
+    &Po      = m_hydrology->overburden_pressure();
 
   IceModelVec::AccessList list{&mask, &m_basal_yield_stress, &tillwat, &Po, &m_till_phi};
 
@@ -398,7 +396,7 @@ void MohrCoulombYieldStress::tauc_to_phi(const IceModelVec2CellType &mask) {
     const int i = p.i(), j = p.j();
 
     if (mask.ocean(i, j)) {
-      tillwat(i, j) = tillwat_max; //FIX for grounding line advance
+      // no change
     } else if (mask.ice_free(i, j)) {
       // no change
     } else { // grounded and there is some ice
