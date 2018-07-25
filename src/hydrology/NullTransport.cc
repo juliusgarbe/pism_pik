@@ -139,15 +139,16 @@ void NullTransport::update_impl(double t, double dt, const Inputs& inputs) {
 
     // tentative decay rate in areas under grounded ice
     double dW_decay = 0.0;
+    double W_new = 0.0;
 
     if (cell_type.grounded_ice(i, j)) {
       dW_decay = dt * (- m_tillwat_decay_rate);
+      W_new = (W_old + dW_input) + dW_decay;
     } else {
-      // use the decay mechanism to remove all water in ice-free and ocean areas
-      dW_decay = -(W_old + dW_input);
+      // tillwat fix for grounding line advance
+      dW_decay = 0.0;
+      W_new = m_tillwat_max;
     }
-
-    double W_new = (W_old + dW_input) + dW_decay;
 
     // enforce bounds
     m_Wtill(i, j) = clip(W_new, 0.0, m_tillwat_max);
