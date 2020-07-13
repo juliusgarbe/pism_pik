@@ -231,7 +231,7 @@ echo "$SCRIPTNAME              NN = $NN"
 if [ -n "${PISM_MPIDO:+1}" ] ; then  # check if env var is already set
   echo "$SCRIPTNAME      PISM_MPIDO = $PISM_MPIDO  (already set)"
 else
-  PISM_MPIDO="mpiexec -n "
+  PISM_MPIDO="srun -n "
   echo "$SCRIPTNAME      PISM_MPIDO = $PISM_MPIDO"
 fi
 
